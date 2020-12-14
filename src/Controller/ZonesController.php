@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\ORM\TableRegistry;
+use phpDocumentor\Reflection\Type;
 
 /**
  * Zones Controller
@@ -50,10 +51,50 @@ class ZonesController extends AppController
     {
         $zone = $this->Zones->newEmptyEntity();
         if ($this->request->is('post')) {
-            $zoneFile = $this->request->getData()['file'];
+            $this->saveNewZonesFile();
+            $this->insertNewZoneFile();
+            $this->Flash->success(__('The zones file has been saved.'));
 
         }
         $this->set(compact('zone'));
+    }
+
+    private function saveNewZonesFile(){
+        $fileName = $this->getUploadFileName();
+        $uploadFile = $this->getUploadFile();
+        $uploadFile['zonesFile']->moveTo('webroot\uploads\ ' . $fileName);
+    }
+
+    private function getUploadFileName() {
+        $uploadFile = $this->getUploadFile();
+        return $uploadFile['zonesFile']->getClientFilename();
+    }
+
+    private function getUploadFile() {
+        return $this->request->getUploadedFiles();
+    }
+
+    private function insertNewZoneFile() {
+        $fileName = $this->getUploadFileName();
+        $file = fopen('webroot\uploads\ ' . $fileName,'r');
+        while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
+            $zoneTable= $this->getTableLocator()->get('zones');
+            $zoneRecord = $zoneTable->find()->where(['zone ' => intval($data[0])])->all()->toList();
+            if($zoneRecord) {
+                foreach ($zoneRecord as $zone) {
+                    $zone->price = intval($data[1]);
+                    $zoneTable->save($zone);
+                }
+            } else {
+                $newZonesTable = $this->getTableLocator()->get('zones');
+                $newZone = $newZonesTable->newEmptyEntity();
+
+                $newZone->zone = intval($data[0]);
+                $newZone->price = intval($data[1]);
+                $newZonesTable->save($newZone);
+            }
+        }
+        fclose($file);
     }
 
     /**

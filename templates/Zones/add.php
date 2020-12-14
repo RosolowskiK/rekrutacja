@@ -13,11 +13,11 @@
     </aside>
     <div class="column-responsive column-80">
         <div class="zones form content">
-            <?= $this->Form->create($zone ,['type','file']) ?>
+            <?= $this->Form->create($zone ,['enctype'=>'multipart/form-data']) ?>
             <fieldset>
                 <legend><?= __('Add Zone') ?></legend>
                 <?php
-                    echo $this->Form->file('file',);
+                    echo $this->Form->control('zonesFile',['type' => 'file']);
                 ?>
             </fieldset>
             <?= $this->Form->button(__('Submit')) ?>

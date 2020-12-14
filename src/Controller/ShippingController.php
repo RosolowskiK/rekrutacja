@@ -77,7 +77,7 @@ class ShippingController extends AppController
     }
 
     private function calculateShippingPrice($shippingData,$zonePrice) {
-        $shippingPrice = $zonePrice * $shippingData['amount'] + 1995 * $shippingData['long_product'];
+        $shippingPrice = $zonePrice + 1995 * $shippingData['long_product'];
         $this->addDiscount($shippingPrice);
 
         return $shippingPrice;
@@ -86,8 +86,6 @@ class ShippingController extends AppController
     private function addDiscount(&$price){
         if($price >= 12500 )
             $price = $price * 0.95;
-
-        return $price;
     }
 
     /**
